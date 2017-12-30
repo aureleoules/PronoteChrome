@@ -75,5 +75,5 @@ function scrapeData() {
         }
         grades.push(finalGrade);
     }
-    chrome.runtime.sendMessage(ID, {grades}); //to back the grades to the chrome extension
+    chrome.runtime.sendMessage(ID, {grades}); //send back the grades to the chrome extension
 }
