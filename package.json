@@ -1,0 +1,11 @@
+{
+  "name": "pronote",
+  "description": "Shows you your most recent grades from Pronote.",
+  "author": "aureleoules",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "pronote", "aureleoules", "grades"
+  ]
+}
