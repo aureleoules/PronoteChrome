@@ -1,7 +1,7 @@
 //This script will be executed on Pronote itself
 
 console.info("Pronote extension loaded.");
-const DELAY = 1000; //Delay to use Pronote cause it sucks
+const DELAY = 1500; //Delay to use Pronote cause it sucks
 const ID = "mhiecmjfcjelhgccnenmhehllfehkalh"; //Extension ID
 
 let credentials = {};
@@ -12,45 +12,9 @@ chrome.runtime.sendMessage(ID, {method: "getPassword"}, function(data) {
     credentials.password = data;
 });
 
-
-setTimeout(function() {
-    const username = document.getElementById("GInterface.Instances[0].idIdentification.bouton_Edit");
-    const password = document.getElementById("GInterface.Instances[0]_password");
-    if(username && password) {
-
-        /* Setting credentials on front-end */
-        username.value = credentials.username;
-        password.value = credentials.password;
-        
-        /* Setting username in the code not in front-end */
-        GInterface.Instances[0].contenuIdent = credentials.username;
-        /* Starting authentication with delay cause Pronote sucks */
-        setTimeout(function() {
-            /** Login */
-            loginBtn();
-            console.log("login");
-            setTimeout(function() {
-                /* Let's scrape some data */
-                scrapeData();
-            }, DELAY);
-        }, DELAY);
-    } else {
-        setTimeout(function() {
-            /* If already logged-in -> Scrape data */
-            scrapeData();
-        }, DELAY);   
-    }
-}, DELAY);
-
-function loginBtn() {
-    /* Initiate authentication function provided by Pronote */
-    GInterface.Instances[0].evenementSurBtnConnexion();
-}
-
 /* My scraping function */
 function scrapeData() {
     const grades = [];
-    /** I think this is the worst code I have ever reversed-engineer **/
     // Pronote's code actually changes overtime so I used a workaround : [23]
     const currentId = document.getElementById("GInterface.Instances[1]_colonne_1").childNodes[1].id;
     const latestGrades = document.getElementById(currentId + "_suffContent").childNodes;
@@ -78,4 +42,39 @@ function scrapeData() {
         grades.push(finalGrade);
     }
     chrome.runtime.sendMessage(ID, {grades}); //send back the grades to the chrome extension
+}
+
+waitForElementToDisplay("GInterface.Instances[0]", 100, () => { //wait for page to load
+    const username = document.getElementById("GInterface.Instances[0].idIdentification.bouton_Edit");
+    const password = document.getElementById("GInterface.Instances[0]_password");
+    if(username && password) {
+        /* Setting credentials on front-end */
+        username.value = credentials.username;
+        password.value = credentials.password;
+        
+        /* Setting username in the code not in front-end */
+        GInterface.Instances[0].contenuIdent = credentials.username;
+        /* Starting authentication with delay cause Pronote sucks */
+        setTimeout(function() {
+            loginBtn();
+        }, 50);
+    }
+    waitForElementToDisplay("GInterface.Instances[1]_colonne_1", 100, scrapeData);        
+});
+
+function loginBtn() {
+    /* Initiate authentication function provided by Pronote */
+    GInterface.Instances[0].evenementSurBtnConnexion();
+}
+
+function waitForElementToDisplay(selector, time, cb) {
+    if(document.getElementById(selector) != null) {
+        cb();
+        return;
+    }
+    else {
+        setTimeout(function() {
+            waitForElementToDisplay(selector, time, cb);
+        }, time);
+    }
 }
