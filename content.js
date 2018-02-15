@@ -28,6 +28,7 @@ setTimeout(function() {
         setTimeout(function() {
             /** Login */
             loginBtn();
+            console.log("login");
             setTimeout(function() {
                 /* Let's scrape some data */
                 scrapeData();
@@ -51,7 +52,8 @@ function scrapeData() {
     const grades = [];
     /** I think this is the worst code I have ever reversed-engineer **/
     // Pronote's code actually changes overtime so I used a workaround : [23]
-    const latestGrades = document.getElementsByClassName("AlignementHaut")[23].childNodes[0].childNodes[0].childNodes;
+    const currentId = document.getElementById("GInterface.Instances[1]_colonne_1").childNodes[1].id;
+    const latestGrades = document.getElementById(currentId + "_suffContent").childNodes;
     for(let i = 0; i < latestGrades.length; i++) {
         const gradeObject = latestGrades[i];
         /* 
